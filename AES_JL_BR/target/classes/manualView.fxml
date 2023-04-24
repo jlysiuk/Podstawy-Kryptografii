@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane alignment="center" prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="kryptografia.ManualInputController">
+   <columnConstraints>
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <TextArea fx:id="rawDataField" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.rowIndex="6">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></TextArea>
+      <TextArea fx:id="encryptedDataField" editable="false" prefHeight="200.0" prefWidth="181.0" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="8">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></TextArea>
+      <TextArea fx:id="decipheredDataField" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="6">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></TextArea>
+      <Label text="Raw data" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+      <Label text="Encrypted data as bytes" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
+      <Label text="Deciphered data" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" />
+      <Button fx:id="encryptButton" disable="true" mnemonicParsing="false" onAction="#encryptText" text="Encrypt" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></Button>
+      <Button fx:id="decryptButton" disable="true" mnemonicParsing="false" onAction="#decryptText" text="Decrypt" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="11" GridPane.valignment="CENTER">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></Button>
+      <TextField fx:id="keyTextField" prefHeight="26.0" prefWidth="182.0" promptText="04FF04FF04FF04FF04FF04FF04FF04FF" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></TextField>
+      <Label text="Enter key in hexadecimal format" GridPane.columnSpan="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+      <Button fx:id="randomKeyButton" mnemonicParsing="false" onAction="#generateRandomKey" text="generate random key" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></Button>
+      <Button fx:id="applyKeyButton" disable="true" mnemonicParsing="false" onAction="#createAESInstance" text="apply key" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></Button>
+      <TextArea fx:id="rawDataAsBytesArea" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.rowIndex="8">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></TextArea>
+      <Label text="Raw data as bytes" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
+      <TextArea fx:id="decipheredAsBytesField" editable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="8">
+         <GridPane.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </GridPane.margin></TextArea>
+      <Label text="Deciphered data as bytes" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="CENTER" />
+      <MenuBar maxWidth="1.7976931348623157E308" GridPane.columnSpan="4" GridPane.halignment="LEFT" GridPane.hgrow="ALWAYS" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+        <menus>
+          <Menu mnemonicParsing="false" text="Mode">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Manual" />
+                  <MenuItem fx:id="fileModeMenuItem" mnemonicParsing="false" onAction="#changeSceneToFileMode" text="File" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </children>
+   <opaqueInsets>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </opaqueInsets>
+</GridPane>
