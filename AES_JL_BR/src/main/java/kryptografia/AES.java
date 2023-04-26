@@ -6,11 +6,15 @@ public class AES {
     byte[][] keyWordsReversed; // for decryption
     byte[] entranceKey;
 
+    //sprawdzanie klucza podanego przez uzytkownika
     public AES(byte[] originalKey) throws Exception {
+        //jezeli dlugosc sie nie zgadza to wyrzucany jest błąd
         if (originalKey.length != 16) {
             throw new Exception("key has wrong length!");
         }
+        //jezeli dlugosc jest dobra to podany klucz jest przypisywany jako originalKey
         this.entranceKey = originalKey;
+        //generowanie podkluczy
         this.keyWords = generateSubKeys(entranceKey);
         this.keyWordsReversed = generateReversedSubKeys(keyWords);
     }
@@ -29,30 +33,31 @@ public class AES {
     }
 
     /**
-     * Encrypt whole thing
-     *
-     * @param message - bytes to encrypt
-     * @return - encoded bytes
+     * @param message - bajty do zaszyfrowania
+     * @return - zaszyfrowane bajty
      */
 
+    //dzielenie message na bloki
     public byte[] encode(byte[] message) {
 
+        //Okreslamy liczbe blokow. Dzielimy przez 16 poniewaz kazdy blok ma rozmiar 4x4
         int wholeBlocksCount = message.length / 16;
         int charactersToEncodeCount;
         if (wholeBlocksCount == 0) {
-            charactersToEncodeCount = 16;
+            charactersToEncodeCount = 16;   //zmienna okreslajaca rozmiar wynikowej zaszyfrowanej wiadomosci
         } else if (message.length % 16 != 0) {
             charactersToEncodeCount = (wholeBlocksCount + 1) * 16;
         } else {
             charactersToEncodeCount = wholeBlocksCount * 16;
         }
 
-        byte[] result = new byte[charactersToEncodeCount];
-        byte[] temp = new byte[charactersToEncodeCount];
-        byte[] blok = new byte[16];
+        byte[] result = new byte[charactersToEncodeCount]; //przetrzymywane zaszyfrowane bloki wiadomosci
+        byte[] temp = new byte[charactersToEncodeCount]; //kopia oryginalnej wiadomości wraz z dopełnieniem zerami
+        byte[] blok = new byte[16]; //tymczasowo przechowywany blok 16-bajtowy, który zostanie poddany szyfrowaniu
 
 
-        // rewrite message to temporary array + append 0s
+        //kopiowanie bajtów oryginalnej wiadomości do tablicy temp
+        //i uzupełnienie zerami brakujących bajtów, aby osiągnąć stały rozmiar bloku
         for (int i = 0; i < charactersToEncodeCount; ++i) {
             if (i < message.length) {
                 temp[i] = message[i];
@@ -61,13 +66,14 @@ public class AES {
             }
         }
 
-        // construct output array...
+        //blok jest kopiowany z tablicy temp do tablicy blok
         int i = 0;
         while (i < temp.length) {
             for (int j = 0; j < 16; ++j) {
                 blok[j] = temp[i++];
             }
 
+            //szyfrowanie bloku
             blok = this.encrypt(blok);
             System.arraycopy(blok, 0, result, i - 16, blok.length);
         }
@@ -80,11 +86,11 @@ public class AES {
             return null;
         }
 
+        // tablica message jest dzielona na bloki 16-bajtowe i przechowywana w tablicy dwuwymiarowej dataAsBlocks
         int blocksCount = message.length / 16;
         byte[][] dataAsBlocks = new byte[blocksCount][16];
 
-        // load data as blocks:
-
+        // ładowanie danych jako bloki do tablicy dataAsBlock:
         int i = 0;
         for (int block = 0; block < blocksCount; block++) {
             for (int b = 0; b < 16; b++) {
@@ -96,6 +102,7 @@ public class AES {
 
         i = 0;
 
+        // w pętli for każdy blok jest odszyfrowywany z użyciem metody decrypt, a wynikowy blok jest umieszczany w tablicy tmp
         byte[] tmp = new byte[message.length];
         for (int block = 0; block < blocksCount; block++) {
             for (int b = 0; b < 16; b++) {
@@ -104,7 +111,7 @@ public class AES {
             }
         }
 
-        // count trailing zeros in tmp...
+        // zlicza ilość zer na końcu tablicy tmp, które zostały dodane jako dopełnienie, aby oryginalna wiadomość miała stały rozmiar bloku 16-bajtowego
         int zeros = 0;
         for (int j = 0; j < 16; j++) {
             if (tmp[tmp.length - (j + 1)] == '\0') {
@@ -114,6 +121,8 @@ public class AES {
             }
         }
 
+        //tworzona jest tablica output, do której kopiowane są bajty z tablicy tmp pomijając dodane dopełnienia zerowe.
+        // Tablica output jest zwracana jako wynik działania funkcji.
         byte[] output = new byte[blocksCount * 16 - zeros];
         System.arraycopy(tmp, 0, output, 0, blocksCount * 16 - zeros);
 
@@ -261,7 +270,7 @@ public class AES {
     }
 
     public byte[] shiftRows(byte[] state) {
-        // create two dimensional array for easier shifting
+        // create two-dimensional array for easier shifting
         byte[][] tmp = new byte[4][4];
         int k = 0;
         for (int i = 0; i < 4; i++) {
@@ -402,7 +411,7 @@ public class AES {
     }
 
     public byte[] shiftRowsReversed(byte[] state) {
-        // create two dimensional array for easier shifting
+        // create two-dimensional array for easier shifting
         byte[][] tmp = new byte[4][4];
         int k = 0;
         for (int i = 0; i < 4; i++) {
