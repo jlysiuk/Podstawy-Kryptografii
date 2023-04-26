@@ -3,7 +3,7 @@ package kryptografia;
 public class AES {
 
     byte[][] keyWords; // 44 words of 32(4bytes) bits
-    byte[][] keyWordsReversed; // for decryption
+    byte[][] keyWordsReversed; // do deszyfrowania
     byte[] entranceKey;
 
     //sprawdzanie klucza podanego przez uzytkownika
@@ -151,21 +151,15 @@ public class AES {
 //
 //        "addKey" - dodaje kolejny klucz rundy do przekształconego bloku.
 
-        // first round
-        tmp = subBytes(tmp);
-        tmp = shiftRows(tmp);
-        tmp = mixColumns(tmp);
-        tmp = addKey(tmp, 1);
-
-        // rounds 2 - 9
-        for (int i = 2; i < 10; i++) {
+        // rundy 1 - 9
+        for (int i = 1; i < 10; i++) {
             tmp = subBytes(tmp);
             tmp = shiftRows(tmp);
             tmp = mixColumns(tmp);
             tmp = addKey(tmp, i);
         }
 
-        // last round
+        // ostatnia runda
         tmp = subBytes(tmp);
         tmp = shiftRows(tmp);
         tmp = addKey(tmp, 10);
@@ -233,8 +227,8 @@ public class AES {
     }
 
     public byte[] addKey(byte[] state, int round) {
-        // 10 - last round
-        // 0 - first round, in sum 11 rounds
+        // 10 - ostatnia runda
+        // 0 - pierwsza runda
         byte[] tmp = new byte[state.length];
         int start = round * 4;
         int end = start + 4;
@@ -381,12 +375,11 @@ public class AES {
                 k++;
             }
         }
-        //2. apply function to columns
+
         for (int i = 0; i < 4; i++) {
             columns[i] = multiplySingleColumnReversed(columns[i]);
         }
 
-        //4. create single dimension state output
         byte[] tmp = new byte[16];
         k = 0;
         for (int i = 0; i < 4; i++) {
@@ -399,7 +392,6 @@ public class AES {
 
     }
 
-
     /**
      * @param column w stanie podczas deszyfrowania
      * @return column pomnozona przez macierz:
@@ -408,6 +400,7 @@ public class AES {
      * 0D 09 0E 0B
      * 0B 0D 09 0E
      */
+
     public byte[] multiplySingleColumnReversed(byte[] column) {
         byte[] c = new byte[4];
         c[0] = (byte) (Utils.fMul((byte) 0x0E, column[0]) ^ Utils.fMul((byte) 0x0B, column[1]) ^ Utils.fMul((byte) 0x0D, column[2]) ^ Utils.fMul((byte) 0x09, column[3]));
