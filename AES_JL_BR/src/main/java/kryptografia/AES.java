@@ -138,7 +138,18 @@ public class AES {
     public byte[] encrypt(byte[] state) {
         byte[] tmp = state;
 
+        //dodaje klucz rundy do bloku wejściowego
         tmp = addKey(tmp, 0);
+
+//        Następnie wykonuje się kilka transformacji na bloku wejściowym w ramach każdej rundy:
+//
+//        "subBytes" - zastępuje każdy bajt w bloku wejściowym innym bajtem na podstawie ustalonej tabeli zamiany (S-box).
+//
+//        "shiftRows" - przesuwa wiersze bloku wejściowego o różne wartości, aby uzyskać dystrybucję bajtów w bloku.
+//
+//        "mixColumns" - mnoży każdą kolumnę bloku wejściowego przez stałą macierz, co prowadzi do zamieszania danych.
+//
+//        "addKey" - dodaje kolejny klucz rundy do przekształconego bloku.
 
         // first round
         tmp = subBytes(tmp);
@@ -166,6 +177,15 @@ public class AES {
     public byte[] decrypt(byte[] state) {
         byte[] tmp = state;
 
+//        Funkcja wykonuje następujące kroki deszyfrowania w odwróconej kolejności:
+//
+//        "addKey" - dodaje klucz rundy do zaszyfrowanego bloku.
+//
+//        "shiftRowsReversed" - wykonuje odwrotną operację do "shiftRows". Przesuwa wiersze bloku w przeciwnych kierunkach, aby odzyskać oryginalną dystrybucję bajtów.
+//
+//        "subBytesReversed" - wykonuje odwrotną operację do "subBytes". Zastępuje każdy bajt w bloku wejściowym innym bajtem na podstawie ustalonej tabeli odwrotnej zamiany (odwrotny S-box).
+//
+//        "inverseMixColumns" - wykonuje odwrotną operację do "mixColumns". Mnoży każdą kolumnę bloku wejściowego przez odwrotną stałą macierz, aby odzyskać oryginalne dane.
 
         // inverse round 10:
         tmp = addKey(tmp, 10);
@@ -190,9 +210,10 @@ public class AES {
         return tmp;
     }
 
-
+//    Ta funkcja generuje podklucze (subkeys) dla algorytmu szyfrowania AES.
+//    Na wejściu przyjmuje 16-bajtowy klucz szyfrowania, a na wyjściu zwraca tablicę bajtów zawierającą 44 słowa klucza,
+//    gdzie każde słowo klucza składa się z 4 bajtów.
     public byte[][] generateSubKeys(byte[] keyInput) {
-        // copy original key to first 4 words:
         int j = 0;
         byte[][] tmp = new byte[44][4];
         for (int i = 0; i < 4; i++) {
@@ -211,40 +232,15 @@ public class AES {
         return tmp;
     }
 
-    public byte[] xorWords(byte[] word1, byte[] word2) {
-        if (word1.length == word2.length) {
-            byte[] tmp = new byte[word1.length];
-            for (int i = 0; i < word1.length; i++) {
-                tmp[i] = (byte) (word1[i] ^ word2[i]);
-            }
-            return tmp;
-        } else {
-            return null;
-        }
-    }
-
-    public byte[] g(byte[] word, int round) {
-        byte[] tmp = shiftArrayLeft(word, 1);
-        for (int i = 0; i < 4; i++) {
-            tmp[i] = SBox.translate(tmp[i]);
-        }
-
-        // round coefficient added to first element
-        byte RC = Utils.polynomialModuloDivision((byte) (0b1 << (round - 1)));
-        tmp[0] ^= RC;
-
-        return tmp;
-    }
-
     public byte[] addKey(byte[] state, int round) {
         // 10 - last round
         // 0 - first round, in sum 11 rounds
         byte[] tmp = new byte[state.length];
         int start = round * 4;
-        int end = start + 4; // not inclusive
+        int end = start + 4;
         int k = 0;
-        for (int i = start; i < end; i++) { // iterate over words
-            for (int j = 0; j < 4; j++) { // iterate over bytes in words
+        for (int i = start; i < end; i++) { //  iterujemy przez słowa klucza
+            for (int j = 0; j < 4; j++) { //  iterujemy przez bajty w każdym słowie klucza
                 tmp[k] = (byte) (state[k] ^ keyWords[i][j]);
                 k++;
             }
@@ -252,7 +248,7 @@ public class AES {
         return tmp;
     }
 
-
+    // W tym kroku każdy bajt stamu poddawany jest transformacji z użyciem tablicy nazywanej SBoxem
     private byte[] subBytes(byte[] state) {
         byte[] tmp = new byte[state.length];
         for (int i = 0; i < state.length; i++) {
@@ -261,6 +257,7 @@ public class AES {
         return tmp;
     }
 
+    // Czynnosc odwrotna do subBytes. Uzywana do deszyfrowania
     private byte[] subBytesReversed(byte[] state) {
         byte[] tmp = new byte[state.length];
         for (int i = 0; i < state.length; i++) {
@@ -269,8 +266,14 @@ public class AES {
         return tmp;
     }
 
+//    Na początku funkcja tworzy dwuwymiarową tablicę tmp,
+//    która pozwala łatwiej przesuwać wiersze macierzy stanu.
+//    Następnie funkcja przesuwa drugi wiersz o jeden bajt w lewo,
+//    trzeci wiersz o dwa bajty w lewo i czwarty wiersz o trzy bajty w lewo.
+//
+//    Na końcu funkcja tworzy jednowymiarową tablicę newState, aby móc zwrócić nowy stan po przesunięciach.
     public byte[] shiftRows(byte[] state) {
-        // create two-dimensional array for easier shifting
+        // tworzenie tablicy dwuwymiarowej dla latwiejszego zamieniania
         byte[][] tmp = new byte[4][4];
         int k = 0;
         for (int i = 0; i < 4; i++) {
@@ -284,7 +287,7 @@ public class AES {
         shiftArrayLeft(tmp[2], 2);
         shiftArrayLeft(tmp[3], 3);
 
-        // create one dimensional array to return output
+        // tworzenie tablicy jednowymiarowej do zwrocenia
         byte[] newState = new byte[16];
         k = 0;
         for (int i = 0; i < 4; i++) {
@@ -297,7 +300,7 @@ public class AES {
         return newState;
     }
 
-
+        //funkcja przesuwania wierszy
     public byte[] shiftArrayLeft(byte[] array, int step) {
         for (int i = 0; i < step; i++) {
             int j;
@@ -315,9 +318,12 @@ public class AES {
         return array;
     }
 
-
+//    Najpierw funkcja tworzy macierz kolumn o wymiarze 4x4, gdzie każda kolumna odpowiada jednej z czterech kolumn w macierzy stanu.
+//    Następnie funkcja iteruje przez każdą kolumnę, i przekazuje ją do funkcji pomocniczej multiplySingleColumn
+//    , która wykonuje na niej mnożenie macierzowe z określoną macierzą stałą.
+//    Wynik tej operacji stanowi nową kolumnę macierzy kolumn.
     public byte[] mixColumns(byte[] state) {
-        //1. create columns
+        //tworzenie kolumn
 
         byte[][] columns = new byte[4][4];
         int k = 0;
@@ -327,12 +333,12 @@ public class AES {
                 k++;
             }
         }
-        //2. apply function to columns
+        //stosowanie funkcji na kolumnach
         for (int i = 0; i < 4; i++) {
             columns[i] = multiplySingleColumn(columns[i]);
         }
 
-        //4. create single dimension state output
+        //tworzenie tablicy jednowymiarowej do zwrocenia
         byte[] tmp = new byte[16];
         k = 0;
         for (int i = 0; i < 4; i++) {
@@ -347,8 +353,8 @@ public class AES {
 
 
     /**
-     * @param column to mutliply by matrix
-     * @return column multiplied by matrix:
+     * @param column do mnozenia przez macierz
+     * @return column pomnozona przez macierz:
      * 02 03 01 01
      * 01 02 03 01
      * 01 01 02 03
@@ -363,6 +369,7 @@ public class AES {
         return c;
     }
 
+    // funkcja odwrotna do mixcolumns
     public byte[] inverseMixColumns(byte[] state) {
         //1. create columns
 
@@ -394,8 +401,8 @@ public class AES {
 
 
     /**
-     * @param column in a state during decryption
-     * @return column multiplied by matrix:
+     * @param column w stanie podczas deszyfrowania
+     * @return column pomnozona przez macierz:
      * 0E 0B 0D 09
      * 09 0E 0B 0D
      * 0D 09 0E 0B
@@ -410,6 +417,7 @@ public class AES {
         return c;
     }
 
+    // metoda odwrotna do shiftRows
     public byte[] shiftRowsReversed(byte[] state) {
         // create two-dimensional array for easier shifting
         byte[][] tmp = new byte[4][4];
@@ -438,6 +446,13 @@ public class AES {
         return newState;
     }
 
+//    Ta funkcja przesuwa elementy tablicy bajtów w prawo o określoną ilość kroków.
+//    Argumenty funkcji to tablica bajtów, którą chcemy przesunąć, i liczba kroków przesuniecia.
+//    W każdej iteracji ostatni element tablicy jest zapisywany do zmiennej last,
+//    a następnie każdy element tablicy, począwszy od przedostatniego,
+//    jest przesuwany o jeden indeks w kierunku końca tablicy.
+//    W kolejnym kroku, wartość last jest umieszczana na pierwszej pozycji w tablicy
+//    W ten sposób, po wykonaniu step iteracji, elementy tablicy są przesunięte w prawo o step pozycji.
     byte[] shiftArrayRight(byte[] array, int step) {
         for (int i = 0; i < step; i++) {
             int j;
@@ -455,6 +470,37 @@ public class AES {
         return array;
     }
 
+    // funkcja XORujaca dwie tablice bajtow
+    public byte[] xorWords(byte[] word1, byte[] word2) {
+        if (word1.length == word2.length) {
+            byte[] tmp = new byte[word1.length];
+            for (int i = 0; i < word1.length; i++) {
+                tmp[i] = (byte) (word1[i] ^ word2[i]);
+            }
+            return tmp;
+        } else {
+            return null;
+        }
+    }
+
+//    funkcja wykonuje trzy operacje na słowie word:
+
+//    1. Przesunięcie cykliczne wszystkich bajtów o jedno miejsce w lewo (z wyjątkiem pierwszego bajtu).
+//    2. Zastąpienie każdego bajtu słowa wartością uzyskaną z tablicy zastępczej SBox, wykorzystując wartość bajtu jako indeks do tablicy.
+//    3. Dodanie do pierwszego bajtu słowa word tzw. "round coefficient" - wartości zależnej od rundy szyfrowania, uzyskanej za pomocą operacji dzielenia modulo w ciele skończonym.
+//    Funkcja zwraca wynik jako 4-bajtowe słowo uzyskane w wyniku wykonania powyższych operacji na słowie word.
+    public byte[] g(byte[] word, int round) {
+        byte[] tmp = shiftArrayLeft(word, 1);
+        for (int i = 0; i < 4; i++) {
+            tmp[i] = SBox.translate(tmp[i]);
+        }
+
+        // round coefficient added to first element
+        byte RC = Utils.polynomialModuloDivision((byte) (0b1 << (round - 1)));
+        tmp[0] ^= RC;
+
+        return tmp;
+    }
 
     public byte[][] getKeyWords() {
         return keyWords;
